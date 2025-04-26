@@ -1,0 +1,507 @@
+<!doctype html>
+<html/>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enhanced Tic-Tac-Toe</title>
+    <!-- Import Comfortaa from Google Fonts with Century Gothic as fallback -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Icon font for achievements -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Animation library -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <!-- Import external stylesheet -->
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="light-mode" data-konami-code="unused">
+    <h1>Enhanced Tic-Tac-Toe</h1>
+
+    <!-- Game mode selector -->
+    <div class="game-modes">
+      <div class="mode active" id="classicMode">Classic</div>
+      <div class="mode" id="infiniteMode">Infinite</div>
+    </div>
+
+    <!-- Opponent selector -->
+    <div class="opponent-selector" id="opponentSelector">
+      <div class="opponent-option active" id="humanOpponent">vs Human</div>
+      <div class="opponent-option" id="easyAI">vs Easy AI</div>
+      <div class="opponent-option" id="mediumAI">vs Medium AI</div>
+    </div>
+
+    <!-- Accessibility options -->
+    <div class="accessibility-options">
+      <button
+        id="accessibilityBtn"
+        class="btn"
+        aria-label="Accessibility Options"
+      >
+        <i class="fas fa-universal-access"></i> Accessibility
+      </button>
+      <div
+        class="screen-reader-status"
+        aria-live="polite"
+        id="screenReaderStatus"
+      >
+        Game ready to play. Player X's turn.
+      </div>
+    </div>
+
+    <div id="status" role="status" aria-live="assertive">Player X's turn</div>
+
+    <!-- Piece counters for infinite mode -->
+    <div class="piece-counters" id="pieceCounters" style="display: none">
+      <div class="piece-counter counter-x">
+        <span class="counter-symbol">X</span>
+        <span id="xCounter">0/3</span>
+      </div>
+      <div class="piece-counter counter-o">
+        <span class="counter-symbol">O</span>
+        <span id="oCounter">0/3</span>
+      </div>
+    </div>
+
+    <!-- Board size selector -->
+    <div class="board-size-selector" id="boardSizeSelector">
+      <div class="size-btn active" data-size="3">3×3</div>
+      <div class="size-btn" data-size="4">4×4</div>
+      <div class="size-btn" data-size="5">5×5</div>
+      <div class="size-btn" data-size="6">6×6</div>
+    </div>
+
+    <div
+      class="board size-3"
+      id="board"
+      role="grid"
+      aria-label="Tic-Tac-Toe Game Board"
+    ></div>
+
+    <div class="game-info" aria-live="polite">
+      <div id="boardDescription" class="sr-only">
+        3x3 board, all cells are empty
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="reset" aria-label="Reset Game">Reset</button>
+
+      <!-- Toggle switch for theme -->
+      <label class="switch" aria-label="Toggle Light/Dark Theme">
+        <input type="checkbox" id="themeToggle" />
+        <span class="slider"></span>
+      </label>
+
+      <!-- Easter Eggs & Animation button -->
+      <button
+        class="special-features-btn"
+        id="specialFeaturesBtn"
+        type="button"
+        aria-label="Special Features and Animations"
+      >
+        <i class="fas fa-magic"></i>
+      </button>
+    </div>
+
+    <!-- Settings button -->
+    <button class="settings-btn" id="settingsBtn" type="button">
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"
+        />
+      </svg>
+    </button>
+
+    <!-- Settings modal -->
+    <div class="settings-modal" id="settingsModal">
+      <div class="settings-modal-content">
+        <button class="modal-close" id="settingsModalClose" type="button">
+          ×
+        </button>
+        <h2>Game Settings</h2>
+
+        <!-- Infinite Mode Settings -->
+        <div class="settings-section">
+          <h3>Infinite Mode Settings</h3>
+          <p>
+            In Infinite Mode, each player can place up to 3 pieces (more on
+            larger boards). When all pieces are used, placing a new piece will
+            remove your oldest piece.
+          </p>
+        </div>
+
+        <!-- Theme Settings -->
+        <div class="settings-section">
+          <h3>Theme Settings</h3>
+          <div class="theme-select">
+            <button
+              class="theme-option active"
+              data-theme="default"
+              type="button"
+            >
+              <div
+                style="
+                  width: 100%;
+                  height: 100%;
+                  background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+                "
+              ></div>
+              <div class="theme-option-label">Default</div>
+            </button>
+            <button class="theme-option" data-theme="winter" type="button">
+              <div
+                style="
+                  width: 100%;
+                  height: 100%;
+                  background: url(themes/winter/background.svg);
+                  background-size: cover;
+                "
+              ></div>
+              <div class="theme-option-label">Winter</div>
+            </button>
+            <button class="theme-option" data-theme="nature" type="button">
+              <div
+                style="
+                  width: 100%;
+                  height: 100%;
+                  background: url(themes/nature/background.svg);
+                  background-size: cover;
+                "
+              ></div>
+              <div class="theme-option-label">Nature</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom Game Pieces -->
+        <div class="settings-section">
+          <h3>Custom Game Pieces</h3>
+          <div class="piece-upload-section">
+            <div class="piece-upload">
+              <div class="piece-preview" id="xPiecePreview">
+                <img src="themes/default/x-icon.svg" alt="X" id="xPreviewImg" />
+              </div>
+              <div class="file-input-container">
+                <label class="file-input-label">Upload X</label>
+                <input type="file" id="xIconFile" accept="image/*" />
+              </div>
+            </div>
+            <div class="piece-upload">
+              <div class="piece-preview" id="oPiecePreview">
+                <img src="themes/default/o-icon.svg" alt="O" id="oPreviewImg" />
+              </div>
+              <div class="file-input-container">
+                <label class="file-input-label">Upload O</label>
+                <input type="file" id="oIconFile" accept="image/*" />
+              </div>
+            </div>
+          </div>
+          <button id="resetPieces" style="margin-top: 15px">
+            Reset to Default Pieces
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Achievement button -->
+    <button class="achievement-btn" id="achievementBtn" type="button">
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M19 5h-2V3h-2v2h-4V3H9v2H7c-1.1 0-2 .9-2 2v1c0 2.55 1.69 4.74 4 5.45V19h2v-2h6v2h2v-5.55c2.31-.71 4-2.9 4-5.45V7c0-1.1-.9-2-2-2zm0 3c0 2.21-1.79 4-4 4h-6c-2.21 0-4-1.79-4-4V7h14v1z"
+        />
+      </svg>
+    </button>
+
+    <!-- Achievement modal -->
+    <div class="achievement-modal" id="achievementModal">
+      <div class="achievement-modal-content">
+        <button class="modal-close" id="achievementModalClose" type="button">
+          ×
+        </button>
+        <h2>Achievements</h2>
+
+        <!-- Player profile section -->
+        <div class="player-profile">
+          <div class="profile-info">
+            <div class="profile-name" id="playerUsername">Guest</div>
+            <button class="edit-profile-btn" id="editProfileBtn">
+              Change Username
+            </button>
+          </div>
+          <div class="profile-stats">
+            <div class="stat-item">
+              <div class="stat-value" id="totalGames">0</div>
+              <div class="stat-label">Games</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="totalWins">0</div>
+              <div class="stat-label">Wins</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Achievement list -->
+        <div class="achievement-list" id="achievementList">
+          <!-- Achievements will be generated here dynamically -->
+          <div class="loading-achievements">Loading achievements...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Username modal -->
+    <div class="username-modal" id="usernameModal">
+      <div class="username-modal-content">
+        <button class="modal-close" id="usernameModalClose" type="button">
+          ×
+        </button>
+        <h2>Enter Your Username</h2>
+        <p>Choose a username to track your achievements and stats.</p>
+        <div class="username-form">
+          <input
+            type="text"
+            id="usernameInput"
+            placeholder="Enter username"
+            maxlength="20"
+          />
+          <button id="saveUsername">Save Username</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Achievement unlocked popup -->
+    <div class="achievement-popup" id="achievementPopup">
+      <div class="achievement-popup-content">
+        <div class="achievement-popup-icon">
+          <i class="fas fa-trophy"></i>
+        </div>
+        <div class="achievement-popup-details">
+          <div class="achievement-popup-title">Achievement Unlocked!</div>
+          <div class="achievement-popup-name" id="popupAchievementName"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Backdrop button -->
+    <button class="backdrop-btn" id="backdropBtn" type="button">
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z"
+        />
+      </svg>
+    </button>
+
+    <!-- Backdrop modal -->
+    <div class="backdrop-modal" id="backdropModal">
+      <div class="backdrop-modal-content">
+        <button class="modal-close" id="modalClose" type="button">×</button>
+        <h2>Custom Background</h2>
+        <div class="backdrop-preview" id="backdropPreview"></div>
+        <div class="backdrop-form">
+          <div class="file-input-container">
+            <label class="file-input-label">Choose Image</label>
+            <input type="file" id="backdropFile" accept="image/*" />
+          </div>
+          <button id="applyBackdrop">Apply Background</button>
+          <button id="removeBackdrop">Remove Background</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accessibility modal -->
+    <div class="accessibility-modal" id="accessibilityModal">
+      <div class="accessibility-modal-content">
+        <button
+          class="modal-close"
+          id="accessibilityModalClose"
+          type="button"
+          aria-label="Close accessibility settings"
+        >
+          ×
+        </button>
+        <h2>Accessibility Settings</h2>
+
+        <!-- Screen Reader Settings -->
+        <div class="settings-section">
+          <h3>Screen Reader Support</h3>
+          <div class="setting-option">
+            <label for="screenReaderModeToggle">
+              <input type="checkbox" id="screenReaderModeToggle" checked />
+              Enable enhanced screen reader support
+            </label>
+            <p class="setting-description">
+              Provides detailed board state announcements and additional context
+              for screen readers.
+            </p>
+          </div>
+        </div>
+
+        <!-- Contrast Settings -->
+        <div class="settings-section">
+          <h3>Visual Settings</h3>
+          <div class="setting-option">
+            <label for="highContrastModeToggle">
+              <input type="checkbox" id="highContrastModeToggle" />
+              High contrast mode
+            </label>
+            <p class="setting-description">
+              Enhances contrast for better visibility.
+            </p>
+          </div>
+          <div class="setting-option">
+            <label for="largeTextModeToggle">
+              <input type="checkbox" id="largeTextModeToggle" />
+              Large text mode
+            </label>
+            <p class="setting-description">
+              Increases text size throughout the game.
+            </p>
+          </div>
+        </div>
+
+        <!-- Animation Settings -->
+        <div class="settings-section">
+          <h3>Motion Settings</h3>
+          <div class="setting-option">
+            <label for="reduceMotionToggle">
+              <input type="checkbox" id="reduceMotionToggle" />
+              Reduce motion
+            </label>
+            <p class="setting-description">
+              Minimizes animations and transitions for those sensitive to
+              motion.
+            </p>
+          </div>
+        </div>
+
+        <!-- Keyboard Settings -->
+        <div class="settings-section">
+          <h3>Keyboard Controls</h3>
+          <div class="keyboard-shortcuts">
+            <div class="shortcut">
+              <kbd>Tab</kbd> &nbsp;Navigate between cells
+            </div>
+            <div class="shortcut">
+              <kbd>Enter</kbd> or <kbd>Space</kbd> &nbsp;Place a mark
+            </div>
+            <div class="shortcut"><kbd>R</kbd> &nbsp;Reset the game</div>
+            <div class="shortcut">
+              <kbd>A</kbd> &nbsp;Announce current game state
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Animations & Easter Eggs modal -->
+    <div class="easter-egg-modal" id="easterEggModal">
+      <div class="easter-egg-modal-content">
+        <button class="modal-close" id="easterEggModalClose" type="button">
+          ×
+        </button>
+        <h2>Animation & Special Features</h2>
+
+        <!-- Board Animations -->
+        <div class="settings-section">
+          <h3>Board Animations</h3>
+          <div class="animation-select">
+            <button
+              class="animation-option active"
+              data-animation="default"
+              type="button"
+            >
+              <div class="animation-preview">
+                <span>Default</span>
+              </div>
+            </button>
+            <button
+              class="animation-option"
+              data-animation="fade"
+              type="button"
+            >
+              <div class="animation-preview">
+                <span>Fade In</span>
+              </div>
+            </button>
+            <button
+              class="animation-option"
+              data-animation="flip"
+              type="button"
+            >
+              <div class="animation-preview">
+                <span>Flip</span>
+              </div>
+            </button>
+            <button
+              class="animation-option"
+              data-animation="bounce"
+              type="button"
+            >
+              <div class="animation-preview">
+                <span>Bounce</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Easter Eggs -->
+        <div class="settings-section">
+          <h3>Easter Eggs & Mini-Games</h3>
+          <p>Discover hidden features! Here are some hints:</p>
+          <ul class="easter-egg-hints">
+            <li>Try the Konami code...</li>
+            <li>Click the game title 10 times quickly</li>
+            <li>Win 3 games in a row</li>
+            <li>Press 'S' + 'N' + 'A' + 'K' + 'E' in sequence</li>
+          </ul>
+        </div>
+
+        <!-- Color Customizer -->
+        <div class="settings-section">
+          <h3>Piece Color Customizer</h3>
+          <div class="color-picker-section">
+            <div class="color-picker">
+              <label for="xColorPicker">X Color:</label>
+              <input type="color" id="xColorPicker" value="#E74C3C" />
+            </div>
+            <div class="color-picker">
+              <label for="oColorPicker">O Color:</label>
+              <input type="color" id="oColorPicker" value="#3498DB" />
+            </div>
+            <button id="applyColors">Apply Colors</button>
+            <button id="resetColors">Reset to Default</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Snake Mini-Game Container (hidden initially) -->
+    <div
+      id="snakeGameContainer"
+      class="mini-game-container"
+      style="display: none"
+    >
+      <div class="mini-game-header">
+        <h3>Snake Mini-Game!</h3>
+        <button id="closeSnakeGame" class="close-mini-game">×</button>
+      </div>
+      <div id="snakeGameBoard" class="snake-game-board"></div>
+      <div class="mini-game-controls">
+        <div>Score: <span id="snakeScore">0</span></div>
+        <button id="startSnakeGame">Start Game</button>
+      </div>
+    </div>
+
+    <!-- Import external JavaScript -->
+    <script src="scripts.js"></script>
+  </body>
+</html>
